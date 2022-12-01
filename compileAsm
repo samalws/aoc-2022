@@ -1,5 +1,6 @@
 nasm -f elf64 -o shared.o src/shared.s && \
+nasm -f elf64 -o hashMap.o src/hashMap.s && \
 nasm -f elf64 -o d$1.o src/d$1.s && \
-gcc d$1.o shared.o -o d$1 && \
+gcc d$1.o shared.o hashMap.o -o d$1 && \
 ./d$1 && \
-rm d$1.o d$1 shared.o
+rm d$1.o d$1 shared.o hashMap.o
