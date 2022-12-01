@@ -1,4 +1,5 @@
 global getLine
+global getNum
 global insertList
 global sumList
 global printList
@@ -9,12 +10,13 @@ global retLbl
 
 extern getline
 extern printf
+extern atoi
 
 section .text
 
 ; rdi: filetag
 ; returns:
-;   rax: num bytes read
+;   rax: num bytes read, or -1 if failed
 ;   rbx: string pointer
 getLine:
 mov rdx, rdi
@@ -30,6 +32,24 @@ mov rsi, rsp
 call getline
 pop rbx
 pop rbx
+ret
+
+; rdi: filetag
+; returns:
+;   rax: 0 if succeeded, -1 if failed, or 1 if read an empty line
+;   rbx: number, assuming rax isn't -1 or 1
+getNum:
+call getLine
+cmp rax, -1
+je retLbl
+cmp rax, 1
+je retLbl
+
+mov rdi, rbx
+call atoi
+
+mov rbx, rax
+mov rax, 0
 ret
 
 ; rdi: list start
