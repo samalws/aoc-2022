@@ -78,12 +78,14 @@ mov [filetag], rax
 ret
 
 
-section .data
+section .rodata
 
 fname: db `inputs/d1.txt`, 0
 mode: db `r`, 0
-filetag: dq 0
 
+section .data
+
+filetag: dq 0
 topListStart:
 dq 0
 dq 0

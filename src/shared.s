@@ -17,14 +17,16 @@ getLine:
 mov rdx, rdi
 
 mov rdi, 0
-mov [lineptr], rdi
-mov [numchrs], rsi
+push rdi
+push rdi
 
-mov rdi, lineptr
-mov rsi, numchrs
+mov rdi, rsp
+add rdi, 8
+mov rsi, rsp
 
 call getline
-mov rbx, [lineptr]
+pop rbx
+pop rbx
 ret
 
 ; rdi: list start
@@ -87,10 +89,8 @@ retLbl:
 ret
 
 
-section .data
+section .rodata
 
-lineptr: dq 0
-numchrs: dq 0
 numFmt: db `%d\n`, 0
 strFmt: db `%s\n`, 0
 a: db `a`, 0
