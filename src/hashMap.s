@@ -1,9 +1,12 @@
 global allocHashMap
 global insertHashMap
 global lookupHashMap
+global deleteHashMap
+global getHashMapSize
 
 extern malloc
 extern calloc
+extern free
 
 ; hashmap: map from int (8 bit) to int (8 bit)
 ; hashmap structure: capacity, space taken up, [capacity] buckets (pointers to linked lists)
@@ -28,16 +31,19 @@ ret
 ; rdi: key
 ; rsi: value
 ; rdx: map
+; returns 0 if not present, 1 if present, into rax
 insertHashMap:
 ; TODO check if it needs to be resized
 
 insertHashMapNoResize:
-push rdx
+push rdx ; to backup in order to increase num elements; popped right before returning
 call getBucket
 
 ; rdi: key
 ; rsi: value
 ; rdx: bucket
+; top of stack: the map it came from
+; returns 0 if not present, 1 if present, into rax
 insertToBucket:
 mov rbx, [rdx]
 cmp rbx, 0
@@ -56,11 +62,14 @@ jmp insertToBucket ; loop around
 add rdx, 8
 mov [rdx], rsi
 add rsp, 8 ; rdx value stored
+mov rax, 1
 ret
 
 ; rdi: key
 ; rsi: value
 ; rdx: where to put it
+; top of stack: the map it came from
+; puts 0 into rax
 allocLinkedList:
 push rdi
 push rsi
@@ -81,10 +90,11 @@ mov [rax+16], rbx
 
 ; increase number elements by 1
 pop rdx
-add rdx, 8
-mov rax, [rdx]
+mov rax, [rdx+8]
 inc rax
-mov [rdx], rax
+mov [rdx+8], rax
+
+mov rax, 0
 
 ret
 
@@ -93,6 +103,7 @@ ret
 ; rdi: key
 ; rsi: map
 ; returns value to rax (0 if none found)
+; puts a 0 into rbx if none found, 1 into rbx if something was found
 lookupHashMap:
 mov rdx, rsi
 call getBucket
@@ -100,6 +111,7 @@ call getBucket
 ; rdi: key
 ; rdx: bucket
 ; returns value to rax (0 if none found)
+; rbx: 0 if not found, 1 if found
 lookupInBucket:
 mov rbx, [rdx]
 cmp rbx, 0
@@ -113,10 +125,68 @@ jmp lookupInBucket ; loop around
 
 .noneFound:
 mov rax, 0
+mov rbx, 0
 ret
 
 .found:
 mov rax, [rdx+8]
+mov rbx, 1
+ret
+
+; -------------- DELETE FROM HASH MAP --------------
+
+; rdi: key
+; rsi: map
+; returns 0 if not present, 1 if present, into rax
+deleteHashMap:
+mov rdx, rsi
+push rdx
+call getBucket
+
+; rdi: key
+; rdx: bucket
+; top of stack: map it came from
+; returns rax: 0 if not found, 1 if found
+deleteInBucket:
+mov rbx, [rdx] ; address of linked list
+cmp rbx, 0
+je .noneFound
+mov rax, [rbx]
+cmp rax, rdi
+je .found
+mov rdx, rbx
+add rdx, 16
+jmp deleteInBucket ; loop around
+
+.noneFound:
+mov rax, 0
+add rsp, 8
+ret
+
+.found:
+; rdx: pointer to prev bucket
+; rbx: pointer to bucket containing key
+; top of stack: map it came from
+mov rax, [rbx+16]
+mov [rdx], rax
+mov rdi, rbx
+call free
+
+pop rdx
+mov rax, [rdx+8]
+dec rax
+mov [rdx+8], rax
+
+mov rax, 1
+ret
+
+; -------------- GET SIZE --------------
+
+; rdi: map
+; returns into rax
+; doesn't clobber anything
+getHashMapSize:
+mov rax, [rdi+8]
 ret
 
 ; -------------- HELPERS --------------
