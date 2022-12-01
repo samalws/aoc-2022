@@ -1,8 +1,11 @@
 global getLine
 global insertList
+global sumList
+global printList
 global printA
 global print
 global printNum
+global retLbl
 
 extern getline
 extern printf
@@ -50,6 +53,33 @@ mov rdx, rbx
 add rdi, 8
 jmp insertList
 
+; rdi: list start
+; rsi: list end
+sumList:
+mov rax, 0
+
+.loop:
+cmp rdi, rsi
+je retLbl
+mov rbx, [rdi]
+add rax, rbx
+add rdi, 8
+jmp .loop
+
+; rdi: list start
+; rsi: list end
+printList:
+cmp rdi, rsi
+je retLbl
+push rdi
+push rsi
+mov rdi, [rdi]
+call printNum
+pop rsi
+pop rdi
+add rdi, 8
+jmp printList
+
 ; preserves rax thru rdx, also rdi and rsi
 printA:
 push rdi
@@ -92,5 +122,5 @@ ret
 section .rodata
 
 numFmt: db `%d\n`, 0
-strFmt: db `%s\n`, 0
-a: db `a`, 0
+strFmt: db `%s`, 0
+a: db `a\n`, 0

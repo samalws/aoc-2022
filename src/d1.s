@@ -3,9 +3,12 @@ global main
 ; from shared.s
 extern getLine
 extern insertList
+extern sumList
+extern printList
 extern printA
 extern print
 extern printNum
+extern retLbl
 
 ; from stdlib
 extern atoi
@@ -32,13 +35,21 @@ call insertList
 jmp .loop
 
 .done:
-mov rdi, topListStart[0]
-call printNum
-mov rdi, topListStart[0]
-mov rax, topListStart[8]
-add rdi, rax
-mov rax, topListStart[16]
-add rdi, rax
+mov rdi, topNMsg
+call print
+
+mov rdi, topListStart
+mov rsi, topListEnd
+call printList
+
+mov rdi, sumMsg
+call print
+
+mov rdi, topListStart
+mov rsi, topListEnd
+call sumList
+
+mov rdi, rax
 call printNum
 
 mov rax, 0
@@ -82,6 +93,8 @@ section .rodata
 
 fname: db `inputs/d1.txt`, 0
 mode: db `r`, 0
+topNMsg: db `Top n:\n`, 0
+sumMsg: db `Sum of top n:\n`, 0
 
 section .data
 
