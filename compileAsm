@@ -1,0 +1,1 @@
+nasm -f elf64 -o d$1.o src/d$1.s && gcc d$1.o -o d$1 && ./d$1 && rm d$1.o d$1

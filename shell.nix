@@ -1,4 +1,4 @@
 { pkgs ? import <nixpkgs> {} }:
 pkgs.mkShell {
-  buildInputs = [ pkgs.ghc pkgs.python3 ];
+  buildInputs = [ pkgs.nasm pkgs.ghc pkgs.python3 ];
 }
