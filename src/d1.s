@@ -1,4 +1,13 @@
 global main
+
+; from shared.s
+extern getLine
+extern insertList
+extern printA
+extern print
+extern printNum
+
+; from stdlib
 extern atoi
 extern fopen
 extern getline
@@ -36,27 +45,28 @@ mov rax, 0
 ret
 
 ; returns:
-; rax: -1 if failed, 0 if succeeded
+; rax: -1 if failed, 1 if succeeded
 ; rbx: total number
 readElf:
-mov rbx, 0 ; total
+mov rcx, 0 ; total
 
-readElfLoop:
-push rbx
+.loop:
+push rcx
+mov rdi, [filetag]
 call getLine
 cmp rax, 1
-je readElfDone
+je .done
 cmp rax, -1
-je readElfDone
+je .done
 
-mov rdi, [lineptr]
+mov rdi, rbx
 call atoi
 
-pop rbx
-add rbx, rax
-jmp readElfLoop
+pop rcx
+add rcx, rax
+jmp .loop
 
-readElfDone:
+.done:
 pop rbx
 ret
 
@@ -67,87 +77,12 @@ call fopen
 mov [filetag], rax
 ret
 
-getLine:
-mov rdi, 0
-mov [lineptr], rdi
-mov [numchrs], rsi
-
-mov rdi, lineptr
-mov rsi, numchrs
-mov rdx, [filetag]
-
-jmp getline
-
-; rdi: list start
-; rsi: list end
-; rdx: thing to insert
-insertList:
-cmp rdi, rsi
-je retLbl
-
-mov rax, [rdi]
-cmp rdx, rax
-jg .greater
-jmp .loopAround
-
-.greater:
-mov rbx, [rdi]
-mov [rdi], rdx
-mov rdx, rbx
-
-.loopAround:
-add rdi, 8
-jmp insertList
-
-; preserves rax thru rdx, also rdi and rsi
-printA:
-push rdi
-mov rdi, a
-call print
-pop rdi
-ret
-
-; preserves rax thru rdx, also rsi
-print:
-push rsi
-push rax
-push rbx
-push rcx
-push rdx
-
-mov rsi, rdi
-mov rdi, strFmt
-mov rax, 0
-call printf
-
-pop rdx
-pop rcx
-pop rbx
-pop rax
-pop rsi
-
-ret
-
-printNum:
-mov rsi, rdi
-mov rdi, numFmt
-mov rax, 0
-jmp printf
-
-retLbl:
-ret
-
 
 section .data
 
 fname: db `inputs/d1.txt`, 0
 mode: db `r`, 0
 filetag: dq 0
-lineptr: dq 0
-numchrs: dq 0
-numFmt: db `%d\n`, 0
-strFmt: db `%s\n`, 0
-a: db `a`, 0
 
 topListStart:
 dq 0
