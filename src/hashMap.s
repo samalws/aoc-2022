@@ -3,6 +3,7 @@ global insertHashMap
 global lookupHashMap
 global deleteHashMap
 global getHashMapSize
+global enumerateHashMap
 
 extern malloc
 extern calloc
@@ -189,6 +190,78 @@ getHashMapSize:
 mov rax, [rdi+8]
 ret
 
+; -------------- ENUMERATE --------------
+
+; rdi: map
+; returns rax: list, rbx: end of list
+enumerateHashMap:
+push rdi
+
+call getHashMapSize
+
+cmp rax, 0
+je .empty
+
+shl rax, 3
+shl rax, 1 ; key, value
+push rax
+call malloc
+
+pop rbx
+pop rdi
+push rax
+
+add rbx, rax
+
+; rdi: map
+; rax: list loc to write to
+; rbx: end of list
+; top of stack: beginning of list
+
+add rdi, 16
+
+.bucketLoop:
+push rdi
+call .linkedListLoop
+pop rdi
+add rdi, 8
+jmp .bucketLoop ; loop around
+
+; rdi: ptr to linked list
+; rax: list loc to write to
+; rbx: end of list
+; top of stack: return addr
+; second on stack: bucket we came from
+; third on stack: beginning of list
+.linkedListLoop:
+mov rcx, [rdi]
+cmp rcx, 0
+je retLbl
+
+mov rdx, [rcx] ; key
+mov [rax], rdx
+mov rdx, [rcx+8] ; value
+mov [rax+8], rdx
+add rax, 16
+
+cmp rax, rbx
+je .done
+
+mov rdi, rcx
+add rdi, 16
+jmp .linkedListLoop ; loop around
+
+.done:
+add rsp, 16
+pop rax
+ret
+
+.empty:
+mov rax, 0
+mov rbx, 0
+add rsp, 8
+ret
+
 ; -------------- HELPERS --------------
 
 ; rdi: key
@@ -209,4 +282,7 @@ ret
 hash:
 ; mov rax, rdi
 mov rax, 0
+ret
+
+retLbl:
 ret

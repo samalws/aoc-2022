@@ -17,6 +17,7 @@ extern insertHashMap
 extern lookupHashMap
 extern deleteHashMap
 extern getHashMapSize
+extern enumerateHashMap
 
 ; from stdlib
 extern stdin
@@ -45,6 +46,19 @@ mov rdi, 5
 mov rsi, 10
 mov rdx, [hashMapLoc]
 call insertHashMap
+
+mov rdi, 7
+mov rsi, 20
+mov rdx, [hashMapLoc]
+call insertHashMap
+
+
+mov rdi, [hashMapLoc]
+call enumerateHashMap
+
+mov rdi, rax
+mov rsi, rbx
+call printList
 
 mov rdi, [hashMapLoc]
 call getHashMapSize
