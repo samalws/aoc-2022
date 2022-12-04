@@ -141,6 +141,6 @@ ret
 
 section .rodata
 
-numFmt: db `%d\n`, 0
+numFmt: db `%ld\n`, 0
 strFmt: db `%s`, 0
 a: db `a\n`, 0
