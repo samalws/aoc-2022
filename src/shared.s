@@ -4,6 +4,7 @@ global insertList
 global sumList
 global printList
 global printA
+global printB
 global print
 global printNum
 global retLbl
@@ -108,6 +109,14 @@ call print
 pop rdi
 ret
 
+; preserves rax thru rdx, also rdi and rsi
+printB:
+push rdi
+mov rdi, b
+call print
+pop rdi
+ret
+
 ; preserves rax thru rdx, also rsi
 print:
 push rsi
@@ -144,3 +153,4 @@ section .rodata
 numFmt: db `%ld\n`, 0
 strFmt: db `%s`, 0
 a: db `a\n`, 0
+b: db `b\n`, 0
