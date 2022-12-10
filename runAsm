@@ -1,0 +1,3 @@
+./buildAsm $1 && \
+./d$1 && \
+rm d$1.o d$1 shared.o hashMap.o
