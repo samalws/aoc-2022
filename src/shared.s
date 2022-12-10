@@ -134,10 +134,10 @@ mov rdi, strFmt
 mov rax, 0
 call printf
 
-push r12
-push r11
-push r10
-push r9
+pop r12
+pop r11
+pop r10
+pop r9
 pop rdx
 pop rcx
 pop rbx
