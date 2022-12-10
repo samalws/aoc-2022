@@ -24,28 +24,45 @@ extern enumerateHashMap
 extern stdin
 extern fopen
 extern calloc
+extern malloc
 extern atoi
 
 section .text
 
 main:
-call openFile
-call simRope
-mov rdi, rax
-call printNum
+mov rdi, 2
+call mainStuff
+
+mov rdi, 10
+call mainStuff
 
 mov rax, 0
 ret
 
+; rdi: length of rope
+mainStuff:
+push rdi
+call openFile
+pop rdi
+call simRope
+mov rdi, rax
+jmp printNum
+
+; rdi: length of rope
 simRope:
 push r15
+push rdi
 
 mov rdi, 100
 call allocHashMap
 mov r15, rax
 
-mov rdi, 0
-mov rsi, 0
+pop rdi
+push rdi
+shl rdi, 3
+call malloc
+mov rdi, rax
+pop rsi
 
 .loop:
 push rdi
@@ -80,11 +97,10 @@ add rsp, 16
 mov rdi, r15
 call getHashMapSize
 pop r15
-x:
 ret
 
-; rdi: head pos
-; rsi: tail pos
+; rdi: knot list
+; rsi: knot list length
 ; dl: direction (char)
 ; rcx: movement amount
 ; r15: hashmap
@@ -93,19 +109,12 @@ multiMovement:
 push rdx
 push rcx
 
+push rdi
 push rsi
 
-call moveHead
-mov rdi, rax
+call moveOnceDir
 
-pop rsi
-push rdi
-
-call moveTail
-
-push rax
-
-mov rdi, rax
+mov rdi, [r10]
 mov rsi, 0
 mov rdx, r15
 call insertHashMap
@@ -119,6 +128,33 @@ pop rdx
 dec rcx
 cmp rcx, 0
 jne multiMovement
+ret
+
+; rdi: knot list
+; rsi: knot list length
+; dl: direction (char)
+; clobbers probably rax-rdx, rdi, rsi, r10, and r11
+; overwrites list
+; r10 at the end will be a pointer to the tail
+moveOnceDir:
+mov r10, rdi
+mov r11, rsi
+
+mov rdi, [r10]
+call moveHead
+
+mov [r10], rax
+
+.loop:
+mov rdi, [r10]
+mov rsi, [r10+8]
+call moveTail
+mov [r10+8], rax
+
+add r10, 8
+dec r11
+cmp r11, 1
+jne .loop
 ret
 
 ; rdi: head pos (x,y 32 bits each)

@@ -117,19 +117,27 @@ call print
 pop rdi
 ret
 
-; preserves rax thru rdx, also rsi
+; preserves rax thru rdx, also rsi, also r9 thru r15
 print:
 push rsi
 push rax
 push rbx
 push rcx
 push rdx
+push r9
+push r10
+push r11
+push r12
 
 mov rsi, rdi
 mov rdi, strFmt
 mov rax, 0
 call printf
 
+push r12
+push r11
+push r10
+push r9
 pop rdx
 pop rcx
 pop rbx
