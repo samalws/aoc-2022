@@ -1,6 +1,7 @@
 global main
 
 ; from shared.s
+extern numFromString
 extern getLine
 extern getNum
 extern insertList
@@ -136,32 +137,6 @@ ret
 
 .false:
 mov rax, 0
-ret
-
-; string: rdi
-; assumption: string is writeable
-; returns: new string in rdi, num in rax
-numFromString:
-push rdi
-
-.loop:
-mov rax, 0
-mov al, [rdi]
-cmp al, '0'
-jl .done
-cmp al, '9'
-jg .done
-inc rdi
-jmp .loop
-
-.done:
-mov rax, 0
-mov [rdi], al
-mov rsi, rdi
-pop rdi
-push rsi
-call atoi
-pop rdi
 ret
 
 openFile:

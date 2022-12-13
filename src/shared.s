@@ -1,3 +1,4 @@
+global numFromString
 global getLine
 global getNum
 global insertList
@@ -14,6 +15,32 @@ extern printf
 extern atoi
 
 section .text
+
+; string: rdi
+; assumption: string is writeable
+; returns: new string in rdi, num in rax
+numFromString:
+push rdi
+
+.loop:
+mov rax, 0
+mov al, [rdi]
+cmp al, '0'
+jl .done
+cmp al, '9'
+jg .done
+inc rdi
+jmp .loop
+
+.done:
+mov rax, 0
+mov [rdi], al
+mov rsi, rdi
+pop rdi
+push rsi
+call atoi
+pop rdi
+ret
 
 ; rdi: filetag
 ; returns:
@@ -146,11 +173,34 @@ pop rsi
 
 ret
 
+; doesn't clobber
 printNum:
+push rsi
+push rax
+push rbx
+push rcx
+push rdx
+push r9
+push r10
+push r11
+push r12
+
 mov rsi, rdi
 mov rdi, numFmt
 mov rax, 0
-jmp printf
+call printf
+
+pop r12
+pop r11
+pop r10
+pop r9
+pop rdx
+pop rcx
+pop rbx
+pop rax
+pop rsi
+
+ret
 
 retLbl:
 ret
