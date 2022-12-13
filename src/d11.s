@@ -33,16 +33,28 @@ extern atoi
 section .text
 
 main:
+mov rdi, 20
+call mainStuff
+
+mov qword [divBy], 1
+mov rdi, 10000
+call mainStuff
+
+mov rax, 0
+ret
+
+mainStuff:
+push rdi
+mov qword [modBy], 1
 call openFile
 call parseFile
+pop rdi
 
-mov rdi, 20
 call simMonkesN
 call monkeyBusinessLevel
 mov rdi, rax
 call printNum
 
-mov rax, 0
 ret
 
 ; returns:
@@ -161,6 +173,10 @@ mov rdi, rbx
 call atoi
 mov [r14], rax
 add r14, 8
+
+mov rdx, [modBy]
+mul rdx
+mov [modBy], rax
 
 mov rdi, [filetag]
 call getLine
@@ -298,9 +314,16 @@ add rax, rdx
 ; wtf?
 
 push rcx
+
 mov rdx, 0
-mov rcx, 3
+mov rcx, [divBy]
 div rcx
+
+mov rdx, 0
+mov rcx, [modBy]
+div rcx
+mov rax, rdx
+
 pop rcx
 
 push rax
@@ -463,3 +486,5 @@ mode: db `r`, 0
 section .data
 
 filetag: dq 0
+divBy: dq 3
+modBy: dq 1
