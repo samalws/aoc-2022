@@ -29,6 +29,7 @@ extern fopen
 extern malloc
 extern calloc
 extern atoi
+extern exit
 
 section .text
 
@@ -66,12 +67,29 @@ call getLine
 pop rsi
 pop rdi
 
+push rdi
+push rsi
+call print
+mov rdi, rsi
+call print
+pop rsi
+pop rdi
+
 call compare
 
 mov rbx, 0
 cmp rax, 0
 cmove rbx, r12
 add r13, rbx
+
+; call printA
+push rdi
+mov rdi, rax
+; mov rdi, r13
+call printNum
+mov rdi, newline
+call print
+pop rdi
 
 inc r12
 jmp .loop
@@ -88,7 +106,7 @@ compare:
 
 ; rax: read from first num
 ; rbx: read from second num
-mov rcx, 0 ; depth
+mov rcx, 0 ; ldepth - rdepth
 ; rdx used for conditions
 mov r15, 0
 
@@ -131,7 +149,7 @@ cmovne rdx, r15
 cmp rdx, 0
 je .c
 ; elif al is numeric and bl = '[' (else .c)
-inc rcx
+inc rcx ; ldepth++
 inc rsi
 jmp .loop
 
@@ -146,29 +164,62 @@ cmovg rdx, r15
 cmp rdx, 0
 je .d
 ; elif al = '[' and bl is numeric (else .d)
-inc rcx
+dec rcx ; rdepth++
 inc rdi
 jmp .loop
 
 .d:
-cmp al, ']'
-jne .e
-; elif al = ']' (else .e)
-
 cmp rcx, 0
-jle .less
-;   if depth > 0 (else .less)
-inc rdi
-dec rcx
-jmp .loop
+jl .f
+je .g
+; jg .e
 
+; elif ldepth > 0
 .e:
-cmp rcx, 0
-jle .greater
-;   if depth > 0 (else .greater)
-inc rsi
-dec rcx
+mov rdx, 1
+cmp al, '0'
+cmovl rdx, r15
+cmp al, '9'
+cmovg rdx, r15
+cmp rdx, 1
+;   if l is numeric: l is greater
+je .greater
+
+cmp bl, ']'
+jne .less
+dec rcx ; ldepth--
 jmp .loop
+;   elif bl = ']': ldepth--
+;   else: r is greater
+
+; elif rdepth > 0
+.f:
+mov rdx, 1
+cmp bl, '0'
+cmovl rdx, r15
+cmp bl, '9'
+cmovg rdx, r15
+cmp rdx, 1
+;   if r is numeric: r is greater
+je .less
+
+cmp al, ']'
+jne .greater
+inc rcx ; rdepth--
+jmp .loop
+;   elif al = ']': rdepth--
+;   else: l is greater
+
+.g:
+; elif l = ']': r is greater
+cmp al, ']'
+je .less
+; elif r = ']': l is greater
+cmp bl, ']'
+je .greater
+; else: mr sucks
+mov rdi, 777
+call exit
 
 .greater:
 mov rax, 1
@@ -187,16 +238,21 @@ call .cmpNumLengths
 ; now assumed num lengths are equal
 
 .cmpNumsLoop:
-inc rdi
-inc rsi
-cmp al, bl
-jl .numLess
-jg .numGreater
+mov al, [rdi]
+mov bl, [rsi]
 
 cmp al, '0'
 jl .numEqual
 cmp al, '9'
 jg .numEqual
+
+cmp al, bl
+jl .numLess
+jg .numGreater
+
+inc rdi
+inc rsi
+
 jmp .cmpNumsLoop
 
 .numEqual:
@@ -275,6 +331,7 @@ section .rodata
 
 fname: db `inputs/d13.txt`, 0
 mode: db `r`, 0
+newline: db `\n`, 0
 
 section .data
 
