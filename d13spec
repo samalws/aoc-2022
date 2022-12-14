@@ -1,0 +1,34 @@
+ldepth = 0
+rdepth = 0
+
+while true:
+
+if l and r are numbers:
+  numCmp # we end up at , or ]
+elif l = r:
+  l++
+  r++
+elif l numeric and r = '[':
+  ldepth++
+  r++
+elif vice versa: vice versa
+elif ldepth > 0:
+  if l numeric: # for r: num impossible, [ impossible, , prob impossible, so ] is only case, so we have num vs []
+    l is greater
+  else: # we finished going deep to look at l
+    if r = ']':
+      ldepth--
+    else: # r is ,
+      r is greater
+elif vice versa: vice versa
+# at this point: nonequal, nonnumeric, ldepth=rdepth=0; by intuition we must be comparing ']' vs ','
+elif l = ']':
+  r is greater
+elif r = ']':
+  l is greater
+else:
+  mr sucks
+
+rcx = ldepth - rdepth
+
+5559 is too high

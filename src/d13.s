@@ -164,12 +164,12 @@ cmovg rdx, r15
 cmp rdx, 0
 je .d
 ; elif al = '[' and bl is numeric (else .d)
-dec rcx ; rdepth++
+dec rcx ; rdepth++ TODO maybe decing a number below 0 doesn't work??
 inc rdi
 jmp .loop
 
 .d:
-cmp rcx, 0
+cmp rcx, 0 ; TODO maybe cmp doesn't work somehow?
 jl .f
 je .g
 ; jg .e
@@ -336,5 +336,3 @@ newline: db `\n`, 0
 section .data
 
 filetag: dq 0
-divBy: dq 3
-modBy: dq 1
